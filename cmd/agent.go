@@ -32,6 +32,7 @@ type Key struct {
 	PublicKey    string `json:"public_key"`
 	PublicKeySig string `json:"public_key_sig"`
 	Account      string `json:"email"`
+	SSHOptions   string `json:"ssh_options"`
 }
 
 var parser Verifier
@@ -55,6 +56,9 @@ func Query(user string) {
 		_theoToken = *theoAccessToken
 	}
 	body, ret := performQuery(user, _theoURL, _theoToken)
+	if *debug {
+		fmt.Fprintf(os.Stderr, "%s", body)
+	}
 	userCacheFile := getUserFilename(user)
 	if ret == 0 {
 		var _publicKeyPath string
@@ -102,11 +106,14 @@ func Query(user string) {
 	signal.Notify(make(chan os.Signal, 1), syscall.SIGPIPE)
 	for i := 0; i < len(keys); i++ {
 		if keys[i].Account != "" {
+			if *debug {
+				fmt.Fprintf(os.Stderr, "Got SSH options? -> %s\n", keys[i].SSHOptions)
+			}
 			if *sshFingerprint != "" {
 				sshpk := parseSSHPublicKey(keys[i].PublicKey)
 				f := ssh.FingerprintSHA256(sshpk)
 				if f == *sshFingerprint {
-					_, err := fmt.Printf("%s\n", keys[i].PublicKey)
+					_, err := fmt.Printf("%s%s\n", getSSHOptions(keys[i].SSHOptions), keys[i].PublicKey)
 					if err != nil {
 						break
 					}
@@ -116,13 +123,13 @@ func Query(user string) {
 					}
 				}
 			} else {
-				_, err := fmt.Printf("%s\n", keys[i].PublicKey)
+				_, err := fmt.Printf("%s%s\n", getSSHOptions(keys[i].SSHOptions), keys[i].PublicKey)
 				if err != nil {
 					break
 				}
 			}
 		} else {
-			_, err := fmt.Printf("%s\n", keys[i].PublicKey)
+			_, err := fmt.Printf("%s%s\n", getSSHOptions(keys[i].SSHOptions), keys[i].PublicKey)
 			if err != nil {
 				break
 			}
@@ -130,6 +137,13 @@ func Query(user string) {
 	}
 	os.Exit(ret)
 
+}
+
+func getSSHOptions(sshOptions string) string {
+	if sshOptions == "" {
+		return sshOptions
+	}
+	return fmt.Sprintf("%s ", sshOptions)
 }
 
 func performQuery(user string, url string, token string) ([]byte, int) {
