@@ -26,10 +26,10 @@ jobs:
           REVISION=$(git rev-parse --short=8 HEAD || echo unknown)
           BRANCH=$(git show-ref | grep "${REVISION}" | grep -v HEAD | awk '{print $2}' | sed 's|refs/remotes/origin/||' | sed 's|refs/heads/||' | sort | head -n 1)
           BUILT=$(date -u +%Y-%m-%dT%H:%M:%S%z)
-          echo ${VERSION} >> $GITHUB_ENV
-          echo ${REVISION} >> $GITHUB_ENV
-          echo ${BRANCH} >> $GITHUB_ENV
-          echo ${BUILT} >> $GITHUB_ENV
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "REVISION=${REVISION}" >> $GITHUB_ENV
+          echo "BRANCH=${BRANCH}" >> $GITHUB_ENV
+          echo "BUILT=${BUILT}" >> $GITHUB_ENV
       - name: Build with xgo
         uses: crazy-max/ghaction-xgo@v1
         with:
@@ -40,7 +40,7 @@ jobs:
           targets: linux/*,darwin/amd64
           v: true
           x: false
-          ldflags: -s -w -X ${COMMON_PACKAGE_NAMESPACE}.NAME=${{ env.PACKAGE_NAME }} -X ${COMMON_PACKAGE_NAMESPACE}.VERSION=${{ env.VERSION }} 
+          ldflags: -s -w -X ${COMMON_PACKAGE_NAMESPACE}.NAME=theo-agent -X ${COMMON_PACKAGE_NAMESPACE}.VERSION=${{ env.VERSION }} 
               -X ${COMMON_PACKAGE_NAMESPACE}.REVISION=${{ env.REVISION }} -X ${COMMON_PACKAGE_NAMESPACE}.BUILT=${{ env.BUILT }} 
               -X ${COMMON_PACKAGE_NAMESPACE}.BRANCH=${{ env.BRANCH }}
         env:
