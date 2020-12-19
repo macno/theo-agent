@@ -2,7 +2,7 @@
 
 PACKAGE_NAME ?=theo-agent
 
-PACKAGE_NAMESPACE=github.com/theoapp/$(PACKAGE_NAME)/v1
+PACKAGE_NAMESPACE=github.com/theoapp/$(PACKAGE_NAME)
 COMMON_PACKAGE_NAMESPACE=$(PACKAGE_NAMESPACE)/common
 
 VERSION := $(shell ./ci/version)
