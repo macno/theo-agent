@@ -24,7 +24,7 @@ jobs:
         run: |
           VERSION=$(./ci/version)
           REVISION=$(git rev-parse --short=8 HEAD || echo unknown)
-          BRANCH=$(git show-ref | grep "$(REVISION)" | grep -v HEAD | awk '{print $$2}' | sed 's|refs/remotes/origin/||' | sed 's|refs/heads/||' | sort | head -n 1)
+          BRANCH=$(git show-ref | grep "${REVISION}" | grep -v HEAD | awk '{print $2}' | sed 's|refs/remotes/origin/||' | sed 's|refs/heads/||' | sort | head -n 1)
           BUILT=$(date -u +%Y-%m-%dT%H:%M:%S%z)
           echo ${VERSION} >> $GITHUB_ENV
           echo ${REVISION} >> $GITHUB_ENV
@@ -40,10 +40,9 @@ jobs:
           targets: linux/*,darwin/amd64
           v: true
           x: false
-          ldflags: -X ${COMMON_PACKAGE_NAMESPACE}.NAME=${{ env.PACKAGE_NAME }} -X ${COMMON_PACKAGE_NAMESPACE}.VERSION=${{ env.VERSION }} 
+          ldflags: -s -w -X ${COMMON_PACKAGE_NAMESPACE}.NAME=${{ env.PACKAGE_NAME }} -X ${COMMON_PACKAGE_NAMESPACE}.VERSION=${{ env.VERSION }} 
               -X ${COMMON_PACKAGE_NAMESPACE}.REVISION=${{ env.REVISION }} -X ${COMMON_PACKAGE_NAMESPACE}.BUILT=${{ env.BUILT }} 
               -X ${COMMON_PACKAGE_NAMESPACE}.BRANCH=${{ env.BRANCH }}
-              -s -w
         env:
           COMMON_PACKAGE_NAMESPACE: github.com/theoapp/theo-agent/common
       - name: Create Release
@@ -61,5 +60,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
           assets_path: ./build
