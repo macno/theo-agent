@@ -40,9 +40,9 @@ jobs:
           targets: linux/*,darwin/amd64
           v: true
           x: false
-          ldflags: -X ${{ COMMON_PACKAGE_NAMESPACE }}.NAME=${{ PACKAGE_NAME }} -X ${{ COMMON_PACKAGE_NAMESPACE }}.VERSION=${{ VERSION }} 
-              -X ${{ COMMON_PACKAGE_NAMESPACE }}.REVISION=${{ REVISION }} -X ${{ COMMON_PACKAGE_NAMESPACE }}.BUILT=${{ BUILT }} 
-              -X ${{ COMMON_PACKAGE_NAMESPACE }}.BRANCH=${{ BRANCH }}
+          ldflags: -X ${COMMON_PACKAGE_NAMESPACE}.NAME=${{ env.PACKAGE_NAME }} -X ${COMMON_PACKAGE_NAMESPACE}.VERSION=${{ env.VERSION }} 
+              -X ${COMMON_PACKAGE_NAMESPACE}.REVISION=${{ env.REVISION }} -X ${COMMON_PACKAGE_NAMESPACE}.BUILT=${{ env.BUILT }} 
+              -X ${COMMON_PACKAGE_NAMESPACE}.BRANCH=${{ env.BRANCH }}
               -s -w
         env:
           COMMON_PACKAGE_NAMESPACE: github.com/theoapp/theo-agent/common
