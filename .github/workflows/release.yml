@@ -20,6 +20,16 @@ jobs:
           go-version: ${{ matrix.go_version }}
       - name: Test Pre-Publish
         run: make test
+      - name: Set env for LDFLAGS
+        run: |
+          VERSION=$(./ci/version)
+          REVISION=$(git rev-parse --short=8 HEAD || echo unknown)
+          BRANCH=$(git show-ref | grep "$(REVISION)" | grep -v HEAD | awk '{print $$2}' | sed 's|refs/remotes/origin/||' | sed 's|refs/heads/||' | sort | head -n 1)
+          BUILT=$(date -u +%Y-%m-%dT%H:%M:%S%z)
+          echo ${VERSION} >> $GITHUB_ENV
+          echo ${REVISION} >> $GITHUB_ENV
+          echo ${BRANCH} >> $GITHUB_ENV
+          echo ${BUILT} >> $GITHUB_ENV
       - name: Build with xgo
         uses: crazy-max/ghaction-xgo@v1
         with:
@@ -30,7 +40,12 @@ jobs:
           targets: linux/*,darwin/amd64
           v: true
           x: false
-          ldflags: -s -w
+          ldflags: -X ${{ COMMON_PACKAGE_NAMESPACE }}.NAME=${{ PACKAGE_NAME }} -X ${{ COMMON_PACKAGE_NAMESPACE }}.VERSION=${{ VERSION }} 
+              -X ${{ COMMON_PACKAGE_NAMESPACE }}.REVISION=${{ REVISION }} -X ${{ COMMON_PACKAGE_NAMESPACE }}.BUILT=${{ BUILT }} 
+              -X ${{ COMMON_PACKAGE_NAMESPACE }}.BRANCH=${{ BRANCH }}
+              -s -w
+        env:
+          COMMON_PACKAGE_NAMESPACE: github.com/theoapp/theo-agent/common
       - name: Create Release
         uses: actions/create-release@v1.0.0
         id: create_release
