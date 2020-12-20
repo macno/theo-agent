@@ -7,32 +7,6 @@ on:
 
 jobs:
   release:
-    strategy:
-      matrix:
-        builds:
-          - os: linux
-            arch: '386'
-          - os: linux
-            arch: amd64
-          - os: linux
-            arch: arm
-            arm: 5
-          - os: linux
-            arch: arm
-            arm: 6
-          - os: linux
-            arch: arm
-            arm: 7
-          - os: linux
-            arch: arm64
-          - os: darwin
-            arch: amd64
-          - os: freebsd
-            arch: amd64
-          - os: openbsd
-            arch: amd64
-          - os: netbsd
-            arch: amd64
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -41,14 +15,18 @@ jobs:
         uses: actions/setup-go@v1
         with:
           go-version: 1.15.x
-      - name: Test Pre-Publish
-        run: make test
       - name: Cross build
-        run: make -e buildx
-        env:
-          GOOS: ${{ matrix.builds.os }}
-          GOARCH: ${{ matrix.builds.arch }}
-          GOARM: ${{ matrix.builds.arm }}
+        run: |
+          GOOS=linux GOARCH=386 make -e buildx
+          GOOS=linux GOARCH=amd64 make -e buildx
+          GOOS=linux GOARCH=arm GOARM=5 make -e buildx
+          GOOS=linux GOARCH=arm GOARM=6 make -e buildx
+          GOOS=linux GOARCH=arm GOARM=7 make -e buildx
+          GOOS=linux GOARCH=arm64 make -e buildx
+          GOOS=darwin GOARCH=amd64 make -e buildx
+          GOOS=freebsd GOARCH=amd64 make -e buildx
+          GOOS=openbsd GOARCH=amd64 make -e buildx
+          GOOS=netbsd GOARCH=amd64 make -e buildx
       - name: Create Release
         uses: actions/create-release@v1.0.0
         id: create_release
