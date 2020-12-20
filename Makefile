@@ -1,7 +1,6 @@
-.PHONY: all test clean
+.PHONY: all test clean buildx
 
 PACKAGE_NAME ?=theo-agent
-
 PACKAGE_NAMESPACE=github.com/theoapp/$(PACKAGE_NAME)
 COMMON_PACKAGE_NAMESPACE=$(PACKAGE_NAMESPACE)/common
 
@@ -15,14 +14,21 @@ GO_LDFLAGS ?= -X $(COMMON_PACKAGE_NAMESPACE).NAME=$(PACKAGE_NAME) -X $(COMMON_PA
               -X $(COMMON_PACKAGE_NAMESPACE).BRANCH=$(BRANCH) \
               -s -w
 
+BUILD_DIR=build
+
 all: test build
+
+buildx: 
+	mkdir -p build
+	go build -ldflags "$(GO_LDFLAGS)" -o $(BUILD_DIR)/$(PACKAGE_NAME)-$(shell echo "$(GOOS)-$(GOARCH)" | sed 's/amd64/x86_64/; s/386/i686/; s/darwin/Darwin/; s/linux/Linux/; s/freebsd-x86_64/FreeBSD-amd64/; s/arm64/aarch64/;')
 
 build: test
 	mkdir -p build
-	go build -ldflags "$(GO_LDFLAGS)" -o build/theo-agent .
+	go build -ldflags "$(GO_LDFLAGS)" -o $(BUILD_DIR)/$(PACKAGE_NAME)
 
 test:
 	go test ./...
 
 clean:
 	go clean ./...
+	rm -rf $(BUILD_DIR)
