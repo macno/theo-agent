@@ -15,11 +15,14 @@ jobs:
           - os: linux
             arch: amd64
           - os: linux
-            arch: arm-5
+            arch: arm
+            arm: 5
           - os: linux
-            arch: arm-6
+            arch: arm
+            arm: 6
           - os: linux
-            arch: arm-7
+            arch: arm
+            arm: 7
           - os: linux
             arch: arm64
           - os: darwin
@@ -45,6 +48,7 @@ jobs:
         env:
           GOOS: ${{ matrix.builds.os }}
           GOARCH: ${{ matrix.builds.arch }}
+          GOARM: ${{ matrix.builds.arm }}
       - name: Create Release
         uses: actions/create-release@v1.0.0
         id: create_release
